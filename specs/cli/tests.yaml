@@ -1,0 +1,56 @@
+spec: cli
+version: 0.1.0
+example_spec: example-spec.yaml
+pass:
+  - command ls
+  - command ls --
+  - command ls ref1
+  - command ls ref1 ref2
+  - command ls -- ref1 -literal
+  - command ls --number 10
+  - command ls --number=10
+  - command ls -n 10
+  - command ls -n10
+  - command ls --attr val1
+  - command ls --attr=val1
+  - command ls -a val1
+  - command ls -aval1
+  - command ls --attr val1 --attr val2
+  - command ls -a val1 -a val2
+  - command ls --color true
+  - command ls --color=false
+  - command ls --color YES
+  - command ls --color 0
+  - command ls --reverse
+  - command ls -r
+  - command ls --number 1 --number 2
+  - command ls --attr val1 ref1 ref2
+  - command ls ref1 --attr val1
+  - command ls --number 10 --attr val1 --color=false --reverse ref1
+fail:
+  - command ls --unknown
+  - command ls --num
+  - command ls --number
+  - command ls --number=
+  - command ls --number abc
+  - command ls --number 1.5
+  - command ls --number -1
+  - command ls -n
+  - command ls -nabc
+  - command ls --color
+  - command ls --color maybe
+  - command ls --color=maybe
+  - command ls --reverse=true
+  - command ls -rtrue
+  - command ls -rn10
+  - command ls -ra
+  - command ls -abc
+  - command ls --attr
+  - command ls --attr val1 --unknown
+notes:
+  - "--number 1 --number 2 passes; the final non-repeatable value takes precedence."
+  - "--attr val1 --attr val2 passes; both values remain available in order."
+  - "-- ends option parsing, so -literal is a positional."
+  - "--num fails; long flag abbreviation is not supported."
+  - "--color fails because color is bool_required, not bool_optional."
+  - "-rn10, -ra, and -abc fail because short flag clusters are not supported."

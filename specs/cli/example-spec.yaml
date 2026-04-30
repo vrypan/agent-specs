@@ -1,0 +1,35 @@
+name: ls
+description: List entries
+usage: command ls [options]
+arguments:
+  - name: REF
+    description: Optional refs to list
+    required: false
+    repeatable: true
+flags:
+  - name: number
+    short: n
+    value: int
+    value_name: N
+    description: Limit number of entries shown
+    attached_short_value: true
+  - name: attr
+    short: a
+    value: string
+    value_name: ATTR
+    description: Filter or display attributes
+    repeatable: true
+    attached_short_value: true
+  - name: color
+    value: bool_required
+    value_name: BOOL
+    description: Color output
+    default_value: "true"
+  - name: reverse
+    short: r
+    value: none
+    description: Show oldest first
+extra_help: |
+  Format tokens:
+    %i       short ID
+    %I       full ID
