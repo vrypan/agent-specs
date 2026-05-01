@@ -11,7 +11,7 @@ both parsing behavior and help output.
 
 | Field | Value |
 | --- | --- |
-| Version | 1.0.0 |
+| Version | 1.1.0 |
 
 ## CORE-MODEL: Core Model
 
@@ -38,7 +38,7 @@ Each flag has:
 - `name`: long name without `--`
 - `short`: optional single-character short name without `-`
 - `value`: value behavior
-- `value_name`: placeholder shown in help, such as `VALUE`, `N`, or `REF`
+- `value_name`: placeholder shown in help, from `FLAGS-VALUE-NAMES`
 - `description`: text shown in generated help
 - `default_value`: optional display-only default text
 - `repeatable`: whether the flag may appear multiple times
@@ -86,6 +86,37 @@ Boolean matching is case-insensitive for words.
 For `bool_optional`, a bare flag means `true`. If the next argument does not
 start with `-`, it is consumed as the boolean value. If the next argument starts
 with `-`, it is left as the next argument.
+
+## FLAGS-VALUE-NAMES: Value Names
+
+`value_name` is the display placeholder for a flag value. It affects help,
+usage examples, and error messages, but it must not change parsing behavior.
+
+Recognized value names:
+
+| Value name | Meaning |
+| --- | --- |
+| `VALUE` | Generic string value |
+| `N` | Integer value |
+| `BOOL` | Boolean value |
+| `FILE` | File path |
+| `DIR` | Directory path |
+| `REF` | Application-specific reference |
+| `ATTR` | Application-specific attribute |
+| `KEY=VALUE` | Structured string parsed by application code |
+
+Rules:
+
+- A flag with `value = none` must not define `value_name`.
+- A flag with `value != none` should define `value_name`.
+- If `value_name` is omitted, use `VALUE` for `string`, `N` for `int`, and
+  `BOOL` for boolean values.
+- A `value_name` other than the recognized names in this section must be
+  treated as `VALUE` and rendered as `<VALUE>`.
+- Render value names inside angle brackets in help, except optional boolean
+  values, which use `[=BOOL]`.
+- `value_name` must not imply parser-level validation beyond the flag's
+  declared `value` kind.
 
 ## FLAGS-LONG-VALUES: Long Flag Values
 
@@ -191,7 +222,6 @@ This spec intentionally does not include:
   them as ordinary value-less flags.
 - Environment variable defaults.
 - Configuration-file defaults.
-- Shell completion generation.
 - Automatic validation of application-specific value syntax, such as splitting
   `key=value` strings.
 - Nested subcommands beyond one command word after the program name.
@@ -228,6 +258,66 @@ Recommended styling:
 - Default and repeatable markers may be dim.
 - Avoid using color as the only way to communicate meaning.
 
+### OPT-COMPLETION: Shell Completion
+
+If shell completion is supported, completion data must be generated from the
+same command, flag, argument, and description definitions used for parsing and
+help generation.
+
+Supported shells:
+
+- `bash`
+- `zsh`
+- `fish`
+
+Recommended behavior:
+
+- Complete subcommand names after the program name.
+- Complete long flags after `--`.
+- Complete short flags after `-`.
+- Complete only flags valid for the active command.
+- Do not complete non-repeatable flags that already appeared, unless the
+  cursor is completing that flag's value.
+- Continue completing repeatable flags after they have already appeared.
+- When completing a flag value, use the flag's completion behavior if one is
+  defined.
+- When completing a positional argument, use the argument's completion behavior
+  if one is defined.
+- Fall back to shell file completion only when the relevant flag or argument
+  allows path-like values.
+- Do not change parse behavior, help output, or error behavior when completion
+  support is enabled.
+
+Completion metadata may be defined on flags and positional arguments:
+
+- `completion`: completion behavior
+- `completion_values`: optional static values
+- `completion_description`: optional descriptions for static values
+
+Completion behaviors:
+
+| Behavior | Meaning |
+| --- | --- |
+| `none` | Do not complete values |
+| `file` | Complete files |
+| `directory` | Complete directories |
+| `value` | Complete static values from `completion_values` |
+| `custom` | Delegate value completion to application-specific code |
+
+Static completion values should preserve declaration order.
+
+Generated completion scripts should be written to stdout by an
+application-level command such as:
+
+```text
+program completion bash
+program completion zsh
+program completion fish
+```
+
+The exact installation instructions for each shell are application-specific
+and are not part of this parser specification.
+
 ## ERR-BEHAVIOR: Error Behavior
 
 The parser should reject:
@@ -252,7 +342,7 @@ the offending token when available, and the expected shape.
 Recommended error details:
 
 - unknown option name
-- missing value and the expected `value_name`
+- missing value and the expected normalized `value_name`
 - invalid value and the expected value kind
 - too few or too many positional arguments
 - the active command usage line
@@ -317,7 +407,7 @@ Rules:
 - Wrap descriptions so the total rendered line length is at most 120
   characters. Wrapped continuation lines should align with the description
   column.
-- Use `value_name` for placeholders.
+- Use the normalized `value_name` from `FLAGS-VALUE-NAMES` for placeholders.
 - Show optional boolean values as `--flag[=BOOL]`.
 - Append ` [default: VALUE]` when `default_value` is set.
 - Append ` [repeatable]` when a flag may be used multiple times.

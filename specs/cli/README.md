@@ -15,7 +15,7 @@ This directory contains an agent-friendly CLI parser specification.
 Use CLI.md as the CLI parser specification.
 Implement CORE-MODEL, FLAGS-*, ARGS-POSITIONAL, CMD-SUBCOMMANDS,
 ERR-BEHAVIOR, ERR-REPORTING, HELP-GENERATION, and TESTS-CONFORMANCE.
-Do not implement OPT-COLOR.
+Do not implement optional sections unless requested.
 Use tests.yaml for conformance tests.
 ```
 
@@ -26,6 +26,7 @@ Core parser sections:
 - `CORE-MODEL`
 - `FLAGS-NAMES`
 - `FLAGS-VALUES`
+- `FLAGS-VALUE-NAMES`
 - `FLAGS-LONG-VALUES`
 - `FLAGS-SHORT-VALUES`
 - `FLAGS-REPEATABLE`
@@ -41,6 +42,7 @@ Behavior and output sections:
 Optional sections:
 
 - `OPT-COLOR`
+- `OPT-COMPLETION`
 
 Reference sections:
 
@@ -57,6 +59,7 @@ Before accepting an implementation, check that:
 - help text is generated from command and parameter definitions
 - repeatable flags show `[repeatable]`
 - default values show `[default: VALUE]`
+- unrecognized value names render as `<VALUE>`
 - help lines wrap at 120 visible characters
 - `--` stops option parsing
 - short flag clusters fail
@@ -66,4 +69,5 @@ Before accepting an implementation, check that:
 - positional arguments follow the command definition
 - errors include usage and a help hint
 - optional non-boolean values are not supported
-- optional sections such as `OPT-COLOR` were only implemented if requested
+- optional sections such as `OPT-COLOR` and `OPT-COMPLETION` were only
+  implemented if requested

@@ -9,6 +9,7 @@ Implement:
 - CORE-MODEL
 - FLAGS-NAMES
 - FLAGS-VALUES
+- FLAGS-VALUE-NAMES
 - FLAGS-LONG-VALUES
 - FLAGS-SHORT-VALUES
 - FLAGS-REPEATABLE
@@ -21,6 +22,7 @@ Implement:
 
 Do not implement:
 - OPT-COLOR
+- OPT-COMPLETION
 
 Use example-spec.yaml as the sample command definition.
 Use tests.yaml as conformance input.
@@ -42,7 +44,7 @@ Include:
 - default markers
 - 120-character wrapping
 
-Do not add OPT-COLOR.
+Do not add optional sections such as OPT-COLOR or OPT-COMPLETION.
 ```
 
 ## Error Reporting Only
